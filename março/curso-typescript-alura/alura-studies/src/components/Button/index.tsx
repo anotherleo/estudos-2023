@@ -1,14 +1,22 @@
 import React from 'react';
 import styles from './Button.module.scss';
 
-interface ButtonProps {
+interface IButton {
   children: React.ReactNode;
+  type?: "button" | "submit" | "reset" | undefined;
 }
 
-class Button extends React.Component<ButtonProps> {
+class Button extends React.Component<IButton> {
+  type: "button" | "submit" | "reset" | undefined;
+
+  constructor(props: IButton) {
+    super(props);
+    this.type = props.type || "button";
+  }
+
   render() {
     return (
-      <button className={styles.botao}>
+      <button type={this.type} className={styles.botao}>
         {this.props.children}
       </button>
     )
