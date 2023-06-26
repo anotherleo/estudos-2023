@@ -1,5 +1,6 @@
 import { Negociacao } from "../models/negociacao.js";
 import { Negociacoes } from "../models/negociacoes.js";
+import { MensagemView } from "../views/mensagem-view.js";
 import { NegociacoesView } from "../views/negociacoes-view.js";
 
 export class NegociacaoController {
@@ -8,6 +9,9 @@ export class NegociacaoController {
     private inputValor: HTMLInputElement;
     private negociacoes = new Negociacoes();
     private negociacoesView = new NegociacoesView('#negociacoesview');
+    private mensagemView = new MensagemView('#mensagemview');
+    private readonly SABADO = 6;
+    private readonly DOMINGO = 0;
 
     constructor() {
         this.inputData = document.querySelector('#data');
@@ -16,14 +20,23 @@ export class NegociacaoController {
         this.negociacoesView.update(this.negociacoes);
     }
 
-    adiciona(): void {
+    public adiciona(): void {
         const negociacao = this.criaNegociacao();
+        // ! validação do dia da semana
+        if (!this.ehDiaUtil(negociacao.data)) {
+            this.mensagemView.update('Apenas negociações em dias úteis são aceitas.')
+            return;
+        }
         this.negociacoes.adiciona(negociacao);
-        this.negociacoesView.update(this.negociacoes);
         this.limparFormulario();
+        this.atualizaView();
     }
 
-    criaNegociacao(): Negociacao {
+    private ehDiaUtil(data: Date) {
+        return data.getDay() > this.DOMINGO && data.getDay() < this.SABADO;
+    }
+
+    private criaNegociacao(): Negociacao {
         // * expressao para substituir os hifens
         const exp = /-/g;
 
@@ -40,10 +53,15 @@ export class NegociacaoController {
         return new Negociacao(date, quantidade, valor);
     }
 
-    limparFormulario(): void {
+    private limparFormulario(): void {
         this.inputData.value = '';
         this.inputQuantidade.value = '';
         this.inputValor.value = '';
         this.inputData.focus();
+    }
+
+    private atualizaView(): void {
+        this.negociacoesView.update(this.negociacoes);
+        this.mensagemView.update('Negociação adicionada com sucesso!')
     }
 }
